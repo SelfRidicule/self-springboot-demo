@@ -25,7 +25,14 @@ public class AuthController {
     @GetMapping("/auth")
     @ResponseBody
     public LoginResult auth() {
-        return LoginResult.success("用户没有登录", false);
+        //
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return LoginResult.success("用户没有登录", false);
+        } else {
+            return LoginResult.success(user);
+        }
     }
 
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
