@@ -8,11 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import self.entity.User;
 import self.service.UserService;
 import self.util.HttpResult;
+import self.util.LoginResult;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
     @Inject
@@ -21,27 +22,32 @@ public class AuthController {
     @Inject
     AuthenticationManager authenticationManager;
 
-
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @GetMapping("/auth")
     @ResponseBody
-    public HttpResult login(@RequestBody User user) {
+    public LoginResult auth() {
+        return LoginResult.success("用户没有登录", false);
+    }
+
+    @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
+    @ResponseBody
+    public Object login(@RequestBody Map<String, Object> usernameAndPassword) {
         //
-        String name = user.getName();
-        String password = user.getPassword();
+        String username = usernameAndPassword.get("username").toString();
+        String password = usernameAndPassword.get("password").toString();
         UserDetails userDetails;
         try {
-            userDetails = userService.loadUserByUsername(name);
+            userDetails = userService.loadUserByUsername(username);
         } catch (Exception e) {
-            return HttpResult.getErrorResult("用户名不存在", user);
+            return LoginResult.failure("用户不存在");
         }
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
         try {
             authenticationManager.authenticate(token);
             SecurityContextHolder.getContext().setAuthentication(token);
             //
-            return HttpResult.getSuccessResult(user);
+            return LoginResult.success("登录成功", userService.getUserByUsername(username));
         } catch (Exception e) {
-            return HttpResult.getErrorResult("密码不正确", user);
+            return HttpResult.getErrorResult("密码不正确", usernameAndPassword);
         }
     }
 

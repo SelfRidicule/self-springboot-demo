@@ -21,8 +21,8 @@ public class UserService implements UserDetailsService {
     @Inject
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public User findByName(String name) {
-        return userMapper.findByName(name);
+    public User getUserByUsername(String name) {
+        return userMapper.findUserByUsername(name);
     }
 
     public List<User> list() {
@@ -35,13 +35,13 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByName(username);
+        User user = getUserByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException(username + " 不存在！");
         }
 
         return new org.springframework.security.core.userdetails.User(
-                username, user.getPassword(), Collections.emptyList());
+                username, user.getEncryptedPassword(), Collections.emptyList());
     }
 
 }

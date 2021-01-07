@@ -10,13 +10,13 @@ import java.util.List;
 @Mapper
 public interface UserMapper {
 
-    @Select("SELECT * FROM user WHERE name = #{name}")
-    User findByName(@Param("name") String name);
+    @Select("select * from user where username = #{username}")
+    User findUserByUsername(@Param("username") String username);
 
     @Select("SELECT * FROM user")
     List<User> list();
 
-    @Select("insert into user(name, password) " +
-            "values(#{name}, #{password})")
-    void save(@Param("name") String name, @Param("password") String password);
+    @Select("insert into user(username, encrypted_password, created_at, updated_at) " +
+            "values(#{username}, #{encryptedPassword}, now(), now())")
+    void save(@Param("username") String username, @Param("encryptedPassword") String encryptedPassword);
 }
