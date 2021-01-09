@@ -7,6 +7,7 @@ import self.util.HttpResult;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -24,9 +25,11 @@ public class UserController {
 
     @RequestMapping(value = "/user/add", method = RequestMethod.POST)
     @ResponseBody
-    public HttpResult add(@RequestBody User user) {
+    public HttpResult add(@RequestBody Map<String , String> map) {
         //
-        userService.save(user.getUsername(), user.getEncryptedPassword());
-        return HttpResult.getSuccessResult(user);
+        String username = map.get("username");
+        String password = map.get("password");
+        userService.save(username, password);
+        return HttpResult.getSuccessResult(map);
     }
 }
