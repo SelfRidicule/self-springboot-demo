@@ -17,7 +17,7 @@ public abstract class Result<T> {
     T data;
 
 
-    protected Result(ResultStatus status, String msg, T data) {
+    public Result(ResultStatus status, String msg, T data) {
         this.status = status;
         this.msg = msg;
         this.data = data;
