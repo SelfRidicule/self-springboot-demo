@@ -6,15 +6,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import self.service.UserService;
 
+import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +39,8 @@ class AuthControllerTest {
     UserService userService;
     @Mock
     AuthenticationManager authenticationManager;
+
+    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @BeforeEach
     public void setUp() {
@@ -64,7 +75,29 @@ class AuthControllerTest {
         map.put("password", "MyPassword");
         String value = new ObjectMapper().writeValueAsString(map);
         System.out.println(value);
-//        mockMvc.perform(MockMvcRequestBuilders.post("/auth/login").contentType())
+        //
+        Mockito.when(userService.loadUserByUsername("MyUser"))
+                .thenReturn(new User("MyUser", bCryptPasswordEncoder.encode("MyPassword"), Collections.emptyList()));
+        Mockito.when(userService.getUserByUsername("MyUser"))
+                .thenReturn(new self.entity.User(1, "MyUser", bCryptPasswordEncoder.encode("MyPassword")));
+        //
+        MvcResult response = mockMvc.perform(MockMvcRequestBuilders.post("/auth/login").contentType(MediaType.APPLICATION_JSON_UTF8).content(value))
+                .andExpect(status().isOk())
+                .andExpect(mvcResult -> {
+                    MockHttpServletResponse servletResponse = mvcResult.getResponse();
+                    servletResponse.setCharacterEncoding("utf-8");
+                    Assertions.assertTrue(servletResponse.getContentAsString().contains("登录成功"));
+                })
+                .andReturn();
+        System.out.println(Arrays.toString(response.getResponse().getCookies()));
+        HttpSession httpSession = response.getRequest().getSession();
+        //
+        mockMvc.perform(MockMvcRequestBuilders.get("/auth").session((MockHttpSession) httpSession)).andExpect(status().isOk()).andExpect(mvcResult -> {
+            MockHttpServletResponse servletResponse = mvcResult.getResponse();
+            servletResponse.setCharacterEncoding("utf-8");
+            System.out.println(servletResponse.getContentAsString());
+            Assertions.assertTrue(servletResponse.getContentAsString().contains("MyUser"));
+        });
     }
 
 }
