@@ -171,7 +171,7 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <!-- 等待docker启动mysql完成(windows) -->
+                    <!-- 等待docker启动mysql完成 -->
                     <execution>
                         <id>wait-test-database</id>
                         <phase>pre-integration-test</phase>
@@ -179,28 +179,20 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <!-- windows -->
                             <executable>ping</executable>
                             <arguments>
                                 <argument>127.0.0.1</argument>
                                 <argument>-n</argument>
                                 <argument>30</argument>
                             </arguments>
+                            <!-- linux/unix/mac -->
+                            <!--<executable>sleep</executable>
+                            <arguments>
+                                <argument>30</argument>
+                            </arguments>-->
                         </configuration>
                     </execution>
-                    <!-- 等待docker启动mysql完成(linux/unix/mac) -->
-<!--                    <execution>-->
-<!--                        <id>wait-test-database</id>-->
-<!--                        <phase>pre-integration-test</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>exec</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <executable>sleep</executable>-->
-<!--                            <arguments>-->
-<!--                                <argument>30</argument>-->
-<!--                            </arguments>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
                     <!-- 销毁docker创建的mysql -->
                     <execution>
                         <id>end-test-database</id>
