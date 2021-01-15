@@ -143,6 +143,83 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <!-- 使用docker启动mysql并且创建db_test数据库 -->
+                    <execution>
+                        <id>start-test-database</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>--name</argument>
+                                <argument>docker-mysql-test-1</argument>
+                                <argument>-p</argument>
+                                <argument>3306:3306</argument>
+                                <argument>-e</argument>
+                                <argument>MYSQL_ROOT_PASSWORD=root</argument>
+                                <argument>-e</argument>
+                                <argument>MYSQL_DATABASE=db_test</argument>
+                                <argument>-d</argument>
+                                <argument>mysql</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 等待docker启动mysql完成(windows) -->
+                    <execution>
+                        <id>wait-test-database</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>ping</executable>
+                            <arguments>
+                                <argument>127.0.0.1</argument>
+                                <argument>-n</argument>
+                                <argument>30</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 等待docker启动mysql完成(linux/unix/mac) -->
+<!--                    <execution>-->
+<!--                        <id>wait-test-database</id>-->
+<!--                        <phase>pre-integration-test</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>exec</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <executable>sleep</executable>-->
+<!--                            <arguments>-->
+<!--                                <argument>30</argument>-->
+<!--                            </arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+                    <!-- 销毁docker创建的mysql -->
+                    <execution>
+                        <id>end-test-database</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <arguments>
+                                <argument>rm</argument>
+                                <argument>-f</argument>
+                                <argument>docker-mysql-test-1</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>5.2.4</version>
@@ -152,6 +229,21 @@
                     <user>root</user>
                     <password>root</password>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>init-database</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                        <configuration>
+                            <driver>com.mysql.cj.jdbc.Driver</driver>
+                            <url>jdbc:mysql://localhost:3306/db_test</url>
+                            <user>root</user>
+                            <password>root</password>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
