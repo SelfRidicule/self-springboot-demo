@@ -21,6 +21,10 @@ public class UserService implements UserDetailsService {
     @Inject
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    public User findUserById(Integer id){
+        return userMapper.findUserById(id);
+    }
+
     public User getUserByUsername(String name) {
         return userMapper.findUserByUsername(name);
     }
