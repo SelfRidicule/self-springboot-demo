@@ -1,4 +1,4 @@
-package self.mapper;
+package self.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

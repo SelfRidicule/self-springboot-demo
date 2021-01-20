@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import self.entity.User;
-import self.mapper.UserMapper;
+import self.dao.UserMapper;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {

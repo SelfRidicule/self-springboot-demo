@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import self.entity.User;
-import self.mapper.UserMapper;
+import self.dao.UserMapper;
 
 import javax.inject.Inject;
 import java.util.Collections;
